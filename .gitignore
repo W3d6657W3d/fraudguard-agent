@@ -1,0 +1,15 @@
+﻿__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env
+.env.local
+node_modules/
+.pnpm-store/
+dist/
+build/
+.DS_Store
+*.log
+*.sqlite3
+.coverage
+.pytest_cache/

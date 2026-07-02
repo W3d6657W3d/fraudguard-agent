@@ -1,56 +1,91 @@
-﻿# FraudGuard Agent
+# FraudGuard Agent
 
-FraudGuard Agent is an AI risk investigation system for real-time transaction fraud analysis. It combines rule retrieval, transaction profiling, tool calling, and automated evidence-based risk reports.
+FraudGuard Agent is a real-time fraud investigation assistant for transaction review. Instead of only predicting a binary fraud label, it retrieves transaction context, builds entity-level risk evidence, matches review rules, and generates a structured investigation report for analysts.
 
-## Project Positioning
+The MVP runs fully offline with a deterministic mock Agent, so it can be demoed without an LLM API key.
 
-This project focuses on in-transaction fraud investigation rather than offline toy classification. It is designed to show practical AI algorithm thinking: imbalanced fraud data, PR-AUC-oriented evaluation, risk threshold trade-offs, evidence chains, and human-in-the-loop review.
+## Why This Project
 
-## Core Features
+Fraud detection projects often stop at offline binary classification. FraudGuard Agent focuses on the analyst-assist workflow around in-transaction fraud review:
 
-- Transaction risk investigation from a transaction ID or user ID
-- Tool calling for transaction profile, device history, IP risk, merchant behavior, and rule hits
-- RAG-based retrieval over fraud rules, case notes, and review guidelines
-- Automated risk report generation with evidence, risk level, and suggested action
-- Dashboard for transaction timeline, risk factors, and investigation summary
-- Docker-based local deployment plan
+- Real-time transaction lookup.
+- User, device, IP, and merchant evidence aggregation.
+- Rule hits separated from ground-truth labels for auditability.
+- Risk score and risk level generation.
+- Evidence-chain style investigation report.
+- Human-in-the-loop review positioning.
+- Mock Agent fallback before optional LLM/RAG integration.
 
-## Planned Tech Stack
+## Features
 
-- Backend: FastAPI, Pydantic, SQLite/PostgreSQL
-- Agent: LangGraph or lightweight custom workflow, tool calling, RAG retrieval
-- Model layer: baseline risk scoring with LightGBM/XGBoost or simulated model output
+- Query a transaction by ID.
+- Inspect transaction details and historical entity behavior.
+- Match deterministic fraud rules for high-value and anomalous access patterns.
+- Generate a structured mock Agent report with evidence and suggested action.
+- Use a React dashboard for resume-friendly demos and screenshots.
+- Run locally with Python/Node or with Docker Compose.
+
+## Tech Stack
+
+- Backend: FastAPI, Pydantic, Python
 - Frontend: React, TypeScript, Vite
+- Data: synthetic CSV transactions and Markdown rules
+- Agent layer: deterministic mock investigation Agent
 - Deployment: Docker Compose
 
-## Initial MVP
+## Architecture
 
-1. Load sample transaction, user, device, IP, merchant, and rule data.
-2. Query one transaction and aggregate risk evidence.
-3. Generate a structured investigation report.
-4. Expose backend API for the frontend dashboard.
-5. Add Docker Compose for reproducible local startup.
+```mermaid
+flowchart LR
+    A["Analyst enters transaction ID"] --> B["React dashboard"]
+    B --> C["FastAPI backend"]
+    C --> D["Transaction CSV"]
+    C --> E["Entity evidence"]
+    E --> F["Rule engine"]
+    F --> G["Mock Agent"]
+    G --> H["Investigation report"]
+    H --> B
+```
 
-## Backend MVP API
+More detail: [docs/architecture.md](docs/architecture.md)
 
-Run the backend locally:
+## Quick Start With Docker
+
+From the repository root:
+
+```bash
+docker compose up --build
+```
+
+Open:
+
+```text
+http://127.0.0.1:5173
+```
+
+Analyze sample transaction:
+
+```text
+T1002
+```
+
+The backend API is available at:
+
+```text
+http://127.0.0.1:8000/docs
+```
+
+## Local Development
+
+Start the backend:
 
 ```bash
 cd backend
+pip install -r requirements.txt
 uvicorn app.main:app --reload
 ```
 
-Available endpoints:
-
-- `GET /health`: service health check.
-- `GET /transactions/{transaction_id}`: returns the transaction, entity evidence, matched rule hits, risk score, and risk level.
-- `GET /investigations/{transaction_id}`: returns the same risk facts plus a deterministic mock Agent investigation report.
-
-Example transaction IDs in `data/sample_transactions.csv`: `T1001`, `T1002`, `T1003`, `T1004`.
-
-## Frontend Dashboard
-
-Run the dashboard locally:
+Start the frontend in another terminal:
 
 ```bash
 cd frontend
@@ -58,8 +93,91 @@ pnpm install
 pnpm run dev
 ```
 
+Open:
+
+```text
+http://127.0.0.1:5173
+```
+
 The dashboard calls `http://127.0.0.1:8000` by default. Set `VITE_API_BASE_URL` if the backend runs elsewhere.
 
-## Resume Angle
+## API Overview
 
-Built a real-time fraud investigation Agent that integrates transaction profiling, rule retrieval, tool calling, and evidence-based risk report generation. The system targets highly imbalanced fraud scenarios and emphasizes PR-AUC-style evaluation, threshold trade-offs, and human review workflows.
+```http
+GET /health
+GET /transactions/{transaction_id}
+GET /investigations/{transaction_id}
+```
+
+Example:
+
+```bash
+curl http://127.0.0.1:8000/investigations/T1002
+```
+
+`T1002` returns a high-risk mock investigation with rule hits for large amount and new device/IP context.
+
+Full API notes: [docs/api.md](docs/api.md)
+
+## Sample Data
+
+Sample transaction IDs:
+
+- `T1001`: low-risk normal transaction.
+- `T1002`: high-value transaction from a new device/IP.
+- `T1003`: repeat low-risk transaction.
+- `T1004`: medium-risk high-value transaction with limited history.
+
+Data source:
+
+```text
+data/sample_transactions.csv
+```
+
+Rules and review guidance:
+
+```text
+data/rules.md
+```
+
+## Demo Screenshot Guide
+
+For a resume or portfolio screenshot, run the dashboard and analyze `T1002`. Capture:
+
+- The transaction search input.
+- High risk level and risk score.
+- Rule hit cards.
+- Evidence chain.
+- Mock Agent suggested action.
+
+Detailed demo flow: [docs/demo.md](docs/demo.md)
+
+## Current MVP Status
+
+Completed:
+
+- FastAPI transaction query API.
+- Entity evidence aggregation.
+- Deterministic rule engine.
+- Mock investigation Agent.
+- React dashboard.
+- Docker Compose setup.
+- README, API, architecture, and demo docs.
+
+Planned:
+
+- RAG retrieval over `data/rules.md`.
+- `LLMProvider` interface.
+- Optional OpenAI-compatible LLM mode.
+- Mock fallback mode for reproducible demos.
+- More realistic synthetic data and case notes.
+
+## Resume Bullets
+
+English:
+
+Built a real-time fraud investigation Agent integrating transaction profiling, rule retrieval, risk feature analysis, and evidence-chain generation. Designed a mock Agent fallback and analyst dashboard to support reproducible demos without external LLM dependencies.
+
+Chinese:
+
+构建面向事中反欺诈场景的智能风险研判 Agent，集成交易画像查询、规则匹配、风险特征分析与证据链生成能力；实现本地 mock Agent 与可视化分析面板，在无外部 LLM API 的情况下支持完整可复现演示。

@@ -32,11 +32,12 @@ Example:
 GET /transactions/T1002
 ```
 
-Returns the transaction profile, historical entity evidence, matched rules, risk score, and risk level.
+Returns the transaction profile, model prediction, historical entity evidence, matched rules, risk score, and risk level.
 
 Key fields:
 
 - `transaction`: basic transaction attributes.
+- `model_prediction`: local model fraud probability, predicted label, and threshold.
 - `entity_evidence`: user, device, IP, and merchant history features.
 - `rule_hits`: deterministic fraud rule matches.
 - `risk_score`: integer score from 0 to 100.
@@ -63,8 +64,9 @@ Example report shape:
   "transaction_id": "T1002",
   "report": {
     "risk_level": "high",
-    "risk_score": 75,
+    "risk_score": 100,
     "evidence": [
+      "Model fraud probability is 0.9998 against threshold 0.50.",
       "Amount 1299.00 exceeds the large-amount threshold against no prior user amount history.",
       "High-value transaction uses new device D902 and IP 198.51.100.21 for user U002."
     ],
@@ -82,4 +84,4 @@ Example report shape:
 - `T1001`: low-risk normal transaction.
 - `T1002`: high-value transaction from a new device/IP.
 - `T1003`: repeat low-risk transaction.
-- `T1004`: medium-risk high-value transaction with limited history.
+- `T1004`: high-risk transaction with fraud-like model features and limited history.

@@ -6,20 +6,24 @@ FraudGuard Agent is organized as a small full-stack investigation workflow. The 
 
 1. User submits a transaction ID in the dashboard.
 2. Backend retrieves transaction profile and related entities.
-3. Backend aggregates user history, device/IP usage, merchant exposure, and rule hits.
-4. Mock Agent turns the risk facts into a structured investigation report.
-5. Frontend displays risk score, evidence chain, matched rules, and suggested action.
+3. Backend scores the transaction with the local XGBoost fraud model.
+4. Backend aggregates user history, device/IP usage, merchant exposure, and rule hits.
+5. Mock Agent turns the model output and risk facts into a structured investigation report.
+6. Frontend displays model probability, risk score, evidence chain, matched rules, and suggested action.
 
 ```mermaid
 flowchart LR
     A["Analyst enters transaction ID"] --> B["React dashboard"]
     B --> C["FastAPI /investigations/{id}"]
     C --> D["CSV transaction data"]
-    C --> E["Entity evidence builder"]
-    E --> F["Rule engine"]
-    F --> G["Mock investigation Agent"]
-    G --> H["Structured risk report"]
-    H --> B
+    C --> E["Model feature CSV"]
+    E --> F["XGBoost pipeline"]
+    C --> G["Entity evidence builder"]
+    G --> H["Rule engine"]
+    F --> I["Mock investigation Agent"]
+    H --> I
+    I --> J["Structured risk report"]
+    J --> B
 ```
 
 ## Main Modules
@@ -33,6 +37,8 @@ flowchart LR
 ## Current MVP Scope
 
 - Reads synthetic transactions from `data/sample_transactions.csv`.
+- Loads model features from `data/model_features.csv`.
+- Scores fraud probability with `models/credit_card_fraud/fraud_detection_pipeline.joblib`.
 - Computes simple user, device, IP, and merchant evidence.
 - Applies deterministic fraud rules for high-value and anomalous access patterns.
 - Generates a mock Agent report with `risk_level`, `risk_score`, evidence, fraud pattern, suggested action, and caveats.

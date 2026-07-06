@@ -9,9 +9,10 @@ The MVP runs fully offline with a deterministic mock Agent, so it can be demoed 
 Fraud detection projects often stop at offline binary classification. FraudGuard Agent focuses on the analyst-assist workflow around in-transaction fraud review:
 
 - Real-time transaction lookup.
+- Local XGBoost fraud probability scoring.
 - User, device, IP, and merchant evidence aggregation.
 - Rule hits separated from ground-truth labels for auditability.
-- Risk score and risk level generation.
+- Model-driven risk score and risk level generation.
 - Evidence-chain style investigation report.
 - Human-in-the-loop review positioning.
 - Mock Agent fallback before optional LLM/RAG integration.
@@ -20,6 +21,7 @@ Fraud detection projects often stop at offline binary classification. FraudGuard
 
 - Query a transaction by ID.
 - Inspect transaction details and historical entity behavior.
+- Score transactions with a local XGBoost fraud detection pipeline.
 - Match deterministic fraud rules for high-value and anomalous access patterns.
 - Generate a structured mock Agent report with evidence and suggested action.
 - Use a React dashboard for resume-friendly demos and screenshots.
@@ -30,6 +32,7 @@ Fraud detection projects often stop at offline binary classification. FraudGuard
 - Backend: FastAPI, Pydantic, Python
 - Frontend: React, TypeScript, Vite
 - Data: synthetic CSV transactions and Markdown rules
+- Model: exported XGBoost classifier in a scikit-learn pipeline
 - Agent layer: deterministic mock investigation Agent
 - Deployment: Docker Compose
 
@@ -40,11 +43,13 @@ flowchart LR
     A["Analyst enters transaction ID"] --> B["React dashboard"]
     B --> C["FastAPI backend"]
     C --> D["Transaction CSV"]
-    C --> E["Entity evidence"]
-    E --> F["Rule engine"]
-    F --> G["Mock Agent"]
-    G --> H["Investigation report"]
-    H --> B
+    C --> E["Model inference"]
+    C --> F["Entity evidence"]
+    F --> G["Rule engine"]
+    E --> H["Mock Agent"]
+    G --> H
+    H --> I["Investigation report"]
+    I --> B
 ```
 
 More detail: [docs/architecture.md](docs/architecture.md)
@@ -115,7 +120,7 @@ Example:
 curl http://127.0.0.1:8000/investigations/T1002
 ```
 
-`T1002` returns a high-risk mock investigation with rule hits for large amount and new device/IP context.
+`T1002` returns a high-risk investigation with a high model fraud probability plus rule hits for large amount and new device/IP context.
 
 Full API notes: [docs/api.md](docs/api.md)
 
@@ -126,12 +131,13 @@ Sample transaction IDs:
 - `T1001`: low-risk normal transaction.
 - `T1002`: high-value transaction from a new device/IP.
 - `T1003`: repeat low-risk transaction.
-- `T1004`: medium-risk high-value transaction with limited history.
+- `T1004`: high-risk transaction with fraud-like model features and limited history.
 
 Data source:
 
 ```text
 data/sample_transactions.csv
+data/model_features.csv
 ```
 
 Rules and review guidance:
@@ -157,6 +163,7 @@ Detailed demo flow: [docs/demo.md](docs/demo.md)
 Completed:
 
 - FastAPI transaction query API.
+- Local XGBoost model inference.
 - Entity evidence aggregation.
 - Deterministic rule engine.
 - Mock investigation Agent.
@@ -176,8 +183,8 @@ Planned:
 
 English:
 
-Built a real-time fraud investigation Agent integrating transaction profiling, rule retrieval, risk feature analysis, and evidence-chain generation. Designed a mock Agent fallback and analyst dashboard to support reproducible demos without external LLM dependencies.
+Built a real-time fraud investigation Agent integrating local XGBoost fraud scoring, transaction profiling, rule retrieval, risk feature analysis, and evidence-chain generation. Designed a mock Agent fallback and analyst dashboard to support reproducible demos without external LLM dependencies.
 
 Chinese:
 
-构建面向事中反欺诈场景的智能风险研判 Agent，集成交易画像查询、规则匹配、风险特征分析与证据链生成能力；实现本地 mock Agent 与可视化分析面板，在无外部 LLM API 的情况下支持完整可复现演示。
+构建面向事中反欺诈场景的智能风险研判 Agent，集成本地 XGBoost 欺诈评分、交易画像查询、规则匹配、风险特征分析与证据链生成能力；实现本地 mock Agent 与可视化分析面板，在无外部 LLM API 的情况下支持完整可复现演示。

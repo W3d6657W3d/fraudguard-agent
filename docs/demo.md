@@ -5,6 +5,7 @@
 Use transaction `T1002` for the main demo. It produces a clear high-risk investigation:
 
 - High transaction amount.
+- High XGBoost model fraud probability.
 - No prior user transaction history.
 - New device and IP context.
 - High risk score and manual review suggestion.
@@ -54,6 +55,7 @@ Capture the dashboard after analyzing `T1002`. A good resume or README screensho
 
 - Transaction ID search box.
 - High risk level and score.
+- Model fraud probability.
 - Matched rule cards.
 - Evidence chain.
 - Mock Agent suggested action.

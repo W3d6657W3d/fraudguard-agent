@@ -35,9 +35,19 @@ class RuleHit(BaseModel):
     score_impact: int = Field(ge=0, le=100)
 
 
+class ModelPrediction(BaseModel):
+    model_name: str
+    fraud_probability: float = Field(ge=0, le=1)
+    predicted_label: int
+    threshold: float = Field(ge=0, le=1)
+    risk_level: str
+    features_available: bool
+
+
 class TransactionRiskFacts(BaseModel):
     transaction: Transaction
     entity_evidence: EntityEvidence
+    model_prediction: ModelPrediction | None
     rule_hits: list[RuleHit]
     risk_score: int = Field(ge=0, le=100)
     risk_level: str

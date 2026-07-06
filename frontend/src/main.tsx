@@ -38,6 +38,15 @@ type RuleHit = {
   score_impact: number;
 };
 
+type ModelPrediction = {
+  model_name: string;
+  fraud_probability: number;
+  predicted_label: number;
+  threshold: number;
+  risk_level: string;
+  features_available: boolean;
+};
+
 type InvestigationReport = {
   risk_level: string;
   risk_score: number;
@@ -50,6 +59,7 @@ type InvestigationReport = {
 type TransactionRiskFacts = {
   transaction: Transaction;
   entity_evidence: EntityEvidence;
+  model_prediction: ModelPrediction | null;
   rule_hits: RuleHit[];
   risk_score: number;
   risk_level: string;
@@ -174,6 +184,16 @@ function RiskSummary({ facts, report }: { facts: TransactionRiskFacts; report: I
         <FileSearch size={18} />
         {report.possible_fraud_pattern}
       </div>
+      {facts.model_prediction && (
+        <div className="model-line">
+          <span>Model probability</span>
+          <strong>{formatPercent(facts.model_prediction.fraud_probability)}</strong>
+          <span>Threshold</span>
+          <strong>{formatPercent(facts.model_prediction.threshold)}</strong>
+          <span>Prediction</span>
+          <strong>{facts.model_prediction.predicted_label === 1 ? "fraud" : "normal"}</strong>
+        </div>
+      )}
     </section>
   );
 }
@@ -280,6 +300,14 @@ function formatAmount(amount: number) {
     style: "currency",
     currency: "AUD",
   }).format(amount);
+}
+
+function formatPercent(value: number) {
+  return new Intl.NumberFormat("en-AU", {
+    style: "percent",
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
+  }).format(value);
 }
 
 ReactDOM.createRoot(document.getElementById("root")!).render(

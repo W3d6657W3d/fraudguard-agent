@@ -3,6 +3,7 @@ from functools import lru_cache
 from pathlib import Path
 
 from app.schemas import EntityEvidence, Transaction, TransactionRiskFacts
+from app.services.model_inference import predict_transaction, score_from_prediction
 from app.services.risk_rules import match_rule_hits, score_risk
 
 DATA_FILE_NAME = "sample_transactions.csv"
@@ -55,11 +56,16 @@ def get_transaction_risk_facts(transaction_id: str) -> TransactionRiskFacts:
         user_prior_ips={item.ip for item in user_prior},
         user_prior_countries={item.country for item in user_prior},
     )
-    risk_score, risk_level = score_risk(rule_hits)
+    model_prediction = predict_transaction(transaction.transaction_id)
+    if model_prediction is not None:
+        risk_score, risk_level = score_from_prediction(model_prediction)
+    else:
+        risk_score, risk_level = score_risk(rule_hits)
 
     return TransactionRiskFacts(
         transaction=transaction,
         entity_evidence=entity_evidence,
+        model_prediction=model_prediction,
         rule_hits=rule_hits,
         risk_score=risk_score,
         risk_level=risk_level,

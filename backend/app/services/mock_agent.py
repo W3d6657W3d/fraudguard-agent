@@ -4,6 +4,15 @@ from app.schemas import InvestigationReport, TransactionRiskFacts
 def build_investigation_report(risk_facts: TransactionRiskFacts) -> InvestigationReport:
     transaction = risk_facts.transaction
     evidence = [hit.evidence for hit in risk_facts.rule_hits]
+    if risk_facts.model_prediction is not None:
+        evidence.insert(
+            0,
+            (
+                "Model fraud probability is "
+                f"{risk_facts.model_prediction.fraud_probability:.4f} "
+                f"against threshold {risk_facts.model_prediction.threshold:.2f}."
+            ),
+        )
 
     if not evidence:
         evidence = [
@@ -31,6 +40,12 @@ def build_investigation_report(risk_facts: TransactionRiskFacts) -> Investigatio
 def _infer_pattern(risk_facts: TransactionRiskFacts) -> str:
     rule_ids = {hit.rule_id for hit in risk_facts.rule_hits}
 
+    if (
+        risk_facts.model_prediction is not None
+        and risk_facts.model_prediction.predicted_label == 1
+        and {"R001", "R002"} <= rule_ids
+    ):
+        return "Model-confirmed high-risk transaction with new access context."
     if {"R001", "R002"} <= rule_ids:
         return "High-value transaction from a new access context."
     if "R004" in rule_ids:

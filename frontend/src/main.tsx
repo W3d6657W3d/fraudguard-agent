@@ -47,6 +47,15 @@ type ModelPrediction = {
   features_available: boolean;
 };
 
+type RetrievedRule = {
+  rule_id: string;
+  title: string;
+  source: string;
+  content: string;
+  relevance_score: number;
+  matched_terms: string[];
+};
+
 type InvestigationReport = {
   risk_level: string;
   risk_score: number;
@@ -68,6 +77,7 @@ type TransactionRiskFacts = {
 type InvestigationResponse = {
   transaction_id: string;
   risk_facts: TransactionRiskFacts;
+  retrieved_rules: RetrievedRule[];
   report: InvestigationReport;
 };
 
@@ -121,7 +131,7 @@ function App() {
         </div>
         <div className="status-pill">
           <ShieldCheck size={18} />
-          Mock Agent mode
+          Local RAG + Mock Agent
         </div>
       </section>
 
@@ -162,6 +172,7 @@ function App() {
           <RiskSummary facts={facts} report={report} />
           <TransactionDetails transaction={facts.transaction} />
           <EvidencePanel facts={facts} report={report} />
+          <RetrievedRulesPanel rules={result.retrieved_rules} />
           <AgentReport report={report} />
         </section>
       )}
@@ -281,6 +292,41 @@ function AgentReport({ report }: { report: InvestigationReport }) {
             <li key={caveat}>{caveat}</li>
           ))}
         </ul>
+      </div>
+    </section>
+  );
+}
+
+function RetrievedRulesPanel({ rules }: { rules: RetrievedRule[] }) {
+  return (
+    <section className="panel rag-panel">
+      <p className="panel-kicker">Retrieved rule context</p>
+      <div className="retrieved-rule-list">
+        {rules.length > 0 ? (
+          rules.map((rule) => (
+            <article className="retrieved-rule" key={rule.rule_id}>
+              <div className="retrieved-rule-header">
+                <h3>{rule.title}</h3>
+                <span>{rule.rule_id}</span>
+              </div>
+              <p>{rule.content}</p>
+              <div className="retrieved-rule-meta">
+                <span>{rule.source}</span>
+                <span>score {rule.relevance_score.toFixed(1)}</span>
+              </div>
+              <div className="term-list">
+                {rule.matched_terms.slice(0, 8).map((term) => (
+                  <span key={`${rule.rule_id}-${term}`}>{term}</span>
+                ))}
+              </div>
+            </article>
+          ))
+        ) : (
+          <article className="retrieved-rule">
+            <h3>No retrieved rule context</h3>
+            <p>No local rule guidance matched this transaction.</p>
+          </article>
+        )}
       </div>
     </section>
   );

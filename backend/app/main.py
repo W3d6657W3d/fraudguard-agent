@@ -3,6 +3,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from app.schemas import InvestigationResponse, TransactionRiskFacts
 from app.services.mock_agent import build_investigation_report
+from app.services.rule_retriever import retrieve_relevant_rules
 from app.services.transactions import TransactionNotFoundError, get_transaction_risk_facts
 
 app = FastAPI(title="FraudGuard Agent API")
@@ -36,8 +37,10 @@ def read_investigation(transaction_id: str) -> InvestigationResponse:
     except TransactionNotFoundError as exc:
         raise HTTPException(status_code=404, detail=str(exc)) from exc
 
+    retrieved_rules = retrieve_relevant_rules(risk_facts)
     return InvestigationResponse(
         transaction_id=risk_facts.transaction.transaction_id,
         risk_facts=risk_facts,
-        report=build_investigation_report(risk_facts),
+        retrieved_rules=retrieved_rules,
+        report=build_investigation_report(risk_facts, retrieved_rules),
     )

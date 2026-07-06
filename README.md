@@ -14,6 +14,7 @@ Fraud detection projects often stop at offline binary classification. FraudGuard
 - Rule hits separated from ground-truth labels for auditability.
 - Model-driven risk score and risk level generation.
 - Evidence-chain style investigation report.
+- Local RAG-style rule retrieval from `data/rules.md`.
 - Human-in-the-loop review positioning.
 - Mock Agent fallback before optional LLM/RAG integration.
 
@@ -23,6 +24,7 @@ Fraud detection projects often stop at offline binary classification. FraudGuard
 - Inspect transaction details and historical entity behavior.
 - Score transactions with a local XGBoost fraud detection pipeline.
 - Match deterministic fraud rules for high-value and anomalous access patterns.
+- Retrieve related fraud review guidance from `data/rules.md`.
 - Generate a structured mock Agent report with evidence and suggested action.
 - Use a React dashboard for resume-friendly demos and screenshots.
 - Run locally with Python/Node or with Docker Compose.
@@ -46,10 +48,12 @@ flowchart LR
     C --> E["Model inference"]
     C --> F["Entity evidence"]
     F --> G["Rule engine"]
-    E --> H["Mock Agent"]
-    G --> H
-    H --> I["Investigation report"]
-    I --> B
+    G --> H["Rule retrieval"]
+    E --> I["Mock Agent"]
+    G --> I
+    H --> I
+    I --> J["Investigation report"]
+    J --> B
 ```
 
 More detail: [docs/architecture.md](docs/architecture.md)
@@ -154,6 +158,7 @@ For a resume or portfolio screenshot, run the dashboard and analyze `T1002`. Cap
 - High risk level and risk score.
 - Rule hit cards.
 - Evidence chain.
+- Retrieved rule context.
 - Mock Agent suggested action.
 
 Detailed demo flow: [docs/demo.md](docs/demo.md)
@@ -166,6 +171,7 @@ Completed:
 - Local XGBoost model inference.
 - Entity evidence aggregation.
 - Deterministic rule engine.
+- Local RAG-style rule retrieval over `data/rules.md`.
 - Mock investigation Agent.
 - React dashboard.
 - Docker Compose setup.
@@ -173,7 +179,6 @@ Completed:
 
 Planned:
 
-- RAG retrieval over `data/rules.md`.
 - `LLMProvider` interface.
 - Optional OpenAI-compatible LLM mode.
 - Mock fallback mode for reproducible demos.
@@ -183,7 +188,7 @@ Planned:
 
 English:
 
-Built a real-time fraud investigation Agent integrating local XGBoost fraud scoring, transaction profiling, rule retrieval, risk feature analysis, and evidence-chain generation. Designed a mock Agent fallback and analyst dashboard to support reproducible demos without external LLM dependencies.
+Built a real-time fraud investigation Agent integrating local XGBoost fraud scoring, transaction profiling, RAG-style rule retrieval, risk feature analysis, and evidence-chain generation. Designed a mock Agent fallback and analyst dashboard to support reproducible demos without external LLM dependencies.
 
 Chinese:
 

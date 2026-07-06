@@ -1,7 +1,10 @@
-from app.schemas import InvestigationReport, TransactionRiskFacts
+from app.schemas import InvestigationReport, RetrievedRule, TransactionRiskFacts
 
 
-def build_investigation_report(risk_facts: TransactionRiskFacts) -> InvestigationReport:
+def build_investigation_report(
+    risk_facts: TransactionRiskFacts,
+    retrieved_rules: list[RetrievedRule] | None = None,
+) -> InvestigationReport:
     transaction = risk_facts.transaction
     evidence = [hit.evidence for hit in risk_facts.rule_hits]
     if risk_facts.model_prediction is not None:
@@ -12,6 +15,11 @@ def build_investigation_report(risk_facts: TransactionRiskFacts) -> Investigatio
                 f"{risk_facts.model_prediction.fraud_probability:.4f} "
                 f"against threshold {risk_facts.model_prediction.threshold:.2f}."
             ),
+        )
+    if retrieved_rules:
+        evidence.append(
+            "Retrieved review guidance: "
+            + "; ".join(rule.content for rule in retrieved_rules[:2])
         )
 
     if not evidence:
@@ -31,6 +39,7 @@ def build_investigation_report(risk_facts: TransactionRiskFacts) -> Investigatio
         suggested_action=_suggest_action(risk_facts.risk_level),
         review_caveats=[
             "This mock Agent is deterministic and does not call an external LLM.",
+            "Retrieved rules are used as local RAG context before report generation.",
             "Sample data is small, so entity history should be treated as demo evidence.",
             "Ground-truth labels are kept separate from the suggested analyst action.",
         ],

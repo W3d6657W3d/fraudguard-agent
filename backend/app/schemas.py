@@ -44,6 +44,15 @@ class ModelPrediction(BaseModel):
     features_available: bool
 
 
+class RetrievedRule(BaseModel):
+    rule_id: str
+    title: str
+    source: str
+    content: str
+    relevance_score: float = Field(ge=0)
+    matched_terms: list[str]
+
+
 class TransactionRiskFacts(BaseModel):
     transaction: Transaction
     entity_evidence: EntityEvidence
@@ -65,4 +74,5 @@ class InvestigationReport(BaseModel):
 class InvestigationResponse(BaseModel):
     transaction_id: str
     risk_facts: TransactionRiskFacts
+    retrieved_rules: list[RetrievedRule]
     report: InvestigationReport

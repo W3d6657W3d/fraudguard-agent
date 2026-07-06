@@ -56,6 +56,7 @@ Capture the dashboard after analyzing `T1002`. A good resume or README screensho
 - Transaction ID search box.
 - High risk level and score.
 - Model fraud probability.
+- Retrieved rule context from `data/rules.md`.
 - Matched rule cards.
 - Evidence chain.
 - Mock Agent suggested action.

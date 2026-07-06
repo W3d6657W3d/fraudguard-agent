@@ -55,13 +55,23 @@ Example:
 GET /investigations/T1002
 ```
 
-Returns the same risk facts plus a mock Agent report.
+Returns the same risk facts plus retrieved rule context and a mock Agent report.
 
 Example report shape:
 
 ```json
 {
   "transaction_id": "T1002",
+  "retrieved_rules": [
+    {
+      "rule_id": "KB002",
+      "title": "High-Risk Signals",
+      "source": "data/rules.md",
+      "content": "New device or new IP shortly before a high-value transaction.",
+      "relevance_score": 5.0,
+      "matched_terms": ["device", "high-value", "ip", "new", "transaction"]
+    }
+  ],
   "report": {
     "risk_level": "high",
     "risk_score": 100,
@@ -73,7 +83,8 @@ Example report shape:
     "possible_fraud_pattern": "High-value transaction from a new access context.",
     "suggested_action": "Hold or step-up the transaction and route it to manual review.",
     "review_caveats": [
-      "This mock Agent is deterministic and does not call an external LLM."
+      "This mock Agent is deterministic and does not call an external LLM.",
+      "Retrieved rules are used as local RAG context before report generation."
     ]
   }
 }
